@@ -1,30 +1,3 @@
-
-This is a modular and reproducible RNA-Seq pipeline written in [Nextflow](https://www.nextflow.io/). It performs quality control, alignment, gene-level quantification, and transcript-level quantification for paired-end RNA-Seq FASTQ files.
-
-## Downloading raw FASTQ files
-
-First, make sure you have `parallel-fastq-dump` installed (e.g. via conda):
-
-```bash
-conda install -c bioconda parallel-fastq-dump
-```
-Then for each SRR ID, 
-```bash
-parallel-fastq-dump \
-  --sra-id SRR1234567     # SRA accession
-  --threads 16            # number of CPU threads to use
-  --split-files           # split into *_1.fastq and *_2.fastq
-  --gzip                  # compress output with gzip
-  --outdir raw_fastq/     # output directory
-```
-
-## Requirements
-Nextflow (tested on v24.10.5)
-Singularity (tested onv3.11.4)
-HPC with SLURM
-
-####
-
 # RNA-Seq Pipeline using Nextflow
 
 A containerized RNA-seq analysis pipeline built with Nextflow and Singularity, featuring dual quantification using STAR alignment and Salmon pseudo-alignment.
