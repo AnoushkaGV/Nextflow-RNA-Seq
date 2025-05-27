@@ -12,6 +12,7 @@ workflow {
 	tpms = salmon_quant(read_pairs, salmon_index_out)
 }
 
+//Generate QC reports using FastQC
 process fastqc {
 	publishDir "${params.outdir}/fastqc"
 	tag "$sra_id"
@@ -94,41 +95,44 @@ process salmon_quant {
 	"""
 }
 
+//Build star index to be used for alignment
 process build_star_index {
-    publishDir "${params.outdir}/star_index"
-    tag "$prefix"
+	publishDir "${params.outdir}/star_index"
+	tag "$prefix"
+	
+	input:
+	tuple val(prefix), path(genome_fasta), path(gtf_file)
 
-    input:
-    tuple val(prefix), path(genome_fasta), path(gtf_file)
-
-    output:
-    path("star_index", emit: index_dir)
-
-    script:
-    """
-    mkdir -p star_index
-    STAR --runThreadN 16 \\
-         --runMode genomeGenerate \\
-         --genomeDir star_index \\
-         --genomeFastaFiles ${genome_fasta} \\
-         --sjdbGTFfile ${gtf_file} \\
-         --sjdbOverhang 48
-    """
+	output:
+	path("star_index", emit: index_dir)
+	
+	script:
+	"""
+	mkdir -p star_index
+	STAR --runThreadN 16 \\
+	--runMode genomeGenerate \\
+	--genomeDir star_index \\
+	--genomeFastaFiles ${genome_fasta} \\
+	--sjdbGTFfile ${gtf_file} \\
+	--sjdbOverhang 48
+	"""
 }
 
+//Build Salmon index to be used for quantification
 process build_salmon_index {
-    publishDir "${params.outdir}"
-    tag "$prefix"
+	publishDir "${params.outdir}"
+	tag "$prefix"
+	
+	input:
 
-    input:
-    tuple val(prefix), path(transcriptome_fasta)
+	tuple val(prefix), path(transcriptome_fasta)
+	
+	output:
+	path("salmon_index", emit: index_dir)
 
-    output:
-    path("salmon_index", emit: index_dir)
-
-    script:
-    """
-    mkdir -p salmon_index
-    salmon index -t ${transcriptome_fasta} -i salmon_index
-    """
+	script:
+	"""
+	mkdir -p salmon_index
+	salmon index -t ${transcriptome_fasta} -i salmon_index
+	"""
 }
